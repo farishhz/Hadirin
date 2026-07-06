@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Absen Kelas",
+  "version": "0.1.13",
+  "identifier": "id.opensource.absenkelas",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Absen Kelas",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 1040,
+        "minHeight": 720
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "category": "Education",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Input dan rekap absensi siswa per jam pelajaran.",
+    "longDescription": "Absen Kelas membantu operator sekolah merekap absensi siswa dari buku absen fisik ke laporan digital tanpa backend dan tanpa biaya server."
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQyRTQ2MzE0MUVENkFEOUIKUldTYnJkWWVGR1BrUWxVc0pvaUdEcUVuV05EVEh1WDFkUTVSYzVIbDA4dkxCQ01OUUhpcG5XclkK",
+      "endpoints": [
+        "https://github.com/farishhz/absen-kelas/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}
