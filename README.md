@@ -34,7 +34,7 @@ alur absensi sesuai kebutuhan masing-masing.
 ## Download dan Install
 
 Download installer terbaru dari halaman
-[GitHub Releases](https://github.com/farhsvvn/absen-kelas/releases/latest).
+[GitHub Releases](https://github.com/farishhz/absen-kelas/releases/tag/v0.1.17).
 
 ### Windows
 
