@@ -2,6 +2,12 @@
   "name": "absen-kelas",
   "version": "0.1.13",
   "description": "Aplikasi desktop offline untuk input dan rekap absensi siswa per jam pelajaran.",
+  "author": "Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>",
+  "homepage": "https://alfarisiazmir.my.id",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farhsvvn/absen-kelas.git"
+  },
   "type": "module",
   "license": "MIT",
   "scripts": {

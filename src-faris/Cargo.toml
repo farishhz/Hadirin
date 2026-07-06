@@ -2,7 +2,7 @@
 name = "absen-kelas"
 version = "0.1.13"
 description = "Aplikasi desktop offline untuk input dan rekap absensi siswa."
-authors = ["Absen Kelas Maintainers"]
+authors = ["Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>"]
 license = "MIT"
 repository = ""
 edition = "2021"

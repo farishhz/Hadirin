@@ -34,7 +34,7 @@ alur absensi sesuai kebutuhan masing-masing.
 ## Download dan Install
 
 Download installer terbaru dari halaman
-[GitHub Releases](https://github.com/farishhz/absen-kelas/releases/latest).
+[GitHub Releases](https://github.com/farhsvvn/absen-kelas/releases/latest).
 
 ### Windows
 
@@ -124,3 +124,11 @@ dipush supaya user bisa langsung melihat perubahan dan download asset terbaru.
 ## Lisensi
 
 MIT. Lihat [LICENSE](LICENSE).
+
+---
+
+## 👨‍💻 Developer & Credits
+Aplikasi ini dikembangkan dan dikelola oleh:
+*   **Developer:** [Alfarisi Azmir](https://alfarisiazmir.my.id)
+*   **GitHub:** [@farhsvvn](https://github.com/farhsvvn)
+*   **Portfolio:** [alfarisiazmir.my.id](https://alfarisiazmir.my.id)
