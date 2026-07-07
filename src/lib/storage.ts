@@ -70,7 +70,7 @@ export function createBackupPayload(data: AppData) {
 export function parseBackupPayload(payload: string): AppData {
   const parsed = JSON.parse(payload) as { app?: string; data?: AppData };
 
-  if (parsed.app !== "hadirin" || !parsed.data) {
+  if (parsed.app !== "hadirin" && parsed.app !== "absen-kelas" || !parsed.data) {
     throw new Error("File backup tidak dikenali sebagai data Hadirin.");
   }
 
