@@ -1,5 +1,5 @@
 [package]
-name = "absen-kelas"
+name = "hadirin"
 version = "0.1.13"
 description = "Aplikasi desktop offline untuk input dan rekap absensi siswa."
 authors = ["Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>"]

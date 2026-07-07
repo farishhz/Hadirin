@@ -1,6 +1,6 @@
 # Security Policy
 
-Absen Kelas menyimpan data secara lokal di perangkat pengguna. Tidak ada backend bawaan dan aplikasi
+Hadirin menyimpan data secara lokal di perangkat pengguna. Tidak ada backend bawaan dan aplikasi
 tidak mengirim data siswa ke server proyek.
 
 ## Melaporkan Masalah

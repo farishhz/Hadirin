@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Absen Kelas",
+  "productName": "Hadirin",
   "version": "0.1.13",
-  "identifier": "id.opensource.absenkelas",
+  "identifier": "id.opensource.hadirin",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Absen Kelas",
+        "title": "Hadirin",
         "width": 1280,
         "height": 820,
         "minWidth": 1040,
@@ -36,13 +36,13 @@
       "icons/icon.ico"
     ],
     "shortDescription": "Input dan rekap absensi siswa per jam pelajaran.",
-    "longDescription": "Absen Kelas membantu operator sekolah merekap absensi siswa dari buku absen fisik ke laporan digital tanpa backend dan tanpa biaya server."
+    "longDescription": "Hadirin membantu operator sekolah merekap absensi siswa dari buku absen fisik ke laporan digital tanpa backend dan tanpa biaya server."
   },
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQyRTQ2MzE0MUVENkFEOUIKUldTYnJkWWVGR1BrUWxVc0pvaUdEcUVuV05EVEh1WDFkUTVSYzVIbDA4dkxCQ01OUUhpcG5XclkK",
       "endpoints": [
-        "https://github.com/farishhz/absen-kelas/releases/tag/v0.1.17/download/latest.json"
+        "https://github.com/farhsvvn/hadirin/releases/tag/v0.1.17/download/latest.json"
       ]
     }
   }

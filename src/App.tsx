@@ -106,7 +106,7 @@ const navItems: Array<{ key: ViewKey; label: string; icon: typeof LayoutDashboar
   { key: "settings", label: "Pengaturan", icon: Settings }
 ];
 
-const GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/farhsvvn/absen-kelas/releases/latest";
+const GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/farhsvvn/hadirin/releases/latest";
 const CURRENT_APP_VERSION = packageJson.version;
 
 function downloadTextFile(fileName: string, content: string) {
@@ -715,7 +715,7 @@ function App() {
         <div className="brand-block">
           <img className="brand-mark" src={appLogoUrl} alt="" aria-hidden="true" />
           <div>
-            <strong>Absen Kelas</strong>
+            <strong>Hadirin</strong>
             <small>{institutionName}</small>
           </div>
         </div>
@@ -881,7 +881,7 @@ function App() {
                     variant="outline"
                     type="button"
                     onClick={async () => {
-                      await downloadWorkbook(createStudentTemplateWorkbook(), "template-siswa-absen-kelas.xlsx");
+                      await downloadWorkbook(createStudentTemplateWorkbook(), "template-siswa-hadirin.xlsx");
                       notify("Template siswa berhasil didownload.");
                     }}
                   >
@@ -1309,7 +1309,7 @@ function App() {
               <div className="workspace-card">
                 <Upload size={26} />
                 <h2>Restore Data</h2>
-                <p className="muted-text">Pulihkan data dari file backup Absen Kelas.</p>
+                <p className="muted-text">Pulihkan data dari file backup Hadirin.</p>
                 <label className="file-button">
                   <Upload size={17} />
                   Pilih File Backup

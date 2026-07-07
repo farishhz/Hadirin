@@ -1,11 +1,11 @@
 import { seedData } from "./seed";
 import type { AppData } from "./types";
 
-export const STORAGE_KEY = "absen-kelas:v1";
+export const STORAGE_KEY = "hadirin:v1";
 export const BACKUP_FORMAT = "JSON";
 
 export function backupFileNameForDate(date: string) {
-  return `backup-absen-kelas-${date}.json`;
+  return `backup-hadirin-${date}.json`;
 }
 
 export function buildStorageInfo(dataDirectory = "") {
@@ -57,7 +57,7 @@ export function resetAppData() {
 export function createBackupPayload(data: AppData) {
   return JSON.stringify(
     {
-      app: "absen-kelas",
+      app: "hadirin",
       version: 1,
       exportedAt: new Date().toISOString(),
       data
@@ -70,8 +70,8 @@ export function createBackupPayload(data: AppData) {
 export function parseBackupPayload(payload: string): AppData {
   const parsed = JSON.parse(payload) as { app?: string; data?: AppData };
 
-  if (parsed.app !== "absen-kelas" || !parsed.data) {
-    throw new Error("File backup tidak dikenali sebagai data Absen Kelas.");
+  if (parsed.app !== "hadirin" || !parsed.data) {
+    throw new Error("File backup tidak dikenali sebagai data Hadirin.");
   }
 
   return {

@@ -1,8 +1,8 @@
-![Absen Kelas GitHub banner](assets/brand/github-banner.png)
+![Hadirin GitHub banner](assets/brand/github-banner.png)
 
-# Absen Kelas
+# Hadirin
 
-Absen Kelas adalah aplikasi desktop offline untuk membantu tim operasional sekolah atau pesantren
+Hadirin adalah aplikasi desktop offline untuk membantu tim operasional sekolah atau pesantren
 menginput dan merekap absensi siswa per jam pelajaran.
 
 Tujuan proyek ini sederhana: operator bisa menyalin data dari buku absen fisik ke aplikasi dengan cepat,
@@ -34,7 +34,7 @@ alur absensi sesuai kebutuhan masing-masing.
 ## Download dan Install
 
 Download installer terbaru dari halaman
-[GitHub Releases](https://github.com/farishhz/absen-kelas/releases/tag/v0.1.17).
+[GitHub Releases](https://github.com/farhsvvn/hadirin/releases/tag/v0.1.17).
 
 ### Windows
 
@@ -44,11 +44,11 @@ dari halaman release resmi, lalu pilih opsi untuk tetap menjalankan installer.
 
 ### macOS
 
-Download file `.dmg`, buka, lalu drag **Absen Kelas.app** ke folder **Applications**.
+Download file `.dmg`, buka, lalu drag **Hadirin.app** ke folder **Applications**.
 
 Catatan penting: build macOS v0.1.x belum ditandatangani dan belum dinotarize oleh Apple karena proyek
 ini masih open source awal dan belum memakai akun Apple Developer berbayar. Karena itu macOS Gatekeeper
-bisa menampilkan pesan seperti **"Absen Kelas" Not Opened** atau **Apple could not verify "Absen Kelas"
+bisa menampilkan pesan seperti **"Hadirin" Not Opened** atau **Apple could not verify "Hadirin"
 is free of malware**.
 
 Ini bukan berarti GitHub menemukan malware. Peringatan tersebut muncul karena macOS belum bisa

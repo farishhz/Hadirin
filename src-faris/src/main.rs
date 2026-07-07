@@ -49,5 +49,5 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![get_app_data_dir, open_app_data_dir])
         .run(tauri::generate_context!())
-        .expect("error while running Absen Kelas");
+        .expect("error while running Hadirin");
 }

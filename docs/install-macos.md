@@ -1,18 +1,18 @@
-# Install Absen Kelas di macOS
+# Install Hadirin di macOS
 
-Panduan ini menjelaskan kenapa macOS bisa menolak membuka Absen Kelas dan bagaimana cara membukanya
+Panduan ini menjelaskan kenapa macOS bisa menolak membuka Hadirin dan bagaimana cara membukanya
 dengan aman.
 
 ## Kenapa muncul peringatan?
 
-Build macOS Absen Kelas v0.1.x belum ditandatangani dan belum dinotarize oleh Apple. macOS Gatekeeper
+Build macOS Hadirin v0.1.x belum ditandatangani dan belum dinotarize oleh Apple. macOS Gatekeeper
 akan menolak aplikasi seperti ini dengan pesan:
 
-> "Absen Kelas" Not Opened
+> "Hadirin" Not Opened
 
 atau:
 
-> Apple could not verify "Absen Kelas" is free of malware.
+> Apple could not verify "Hadirin" is free of malware.
 
 Peringatan ini muncul karena Apple belum memverifikasi identitas developer dan paket aplikasinya.
 Untuk menghilangkan peringatan ini secara permanen pada build publik, proyek perlu akun Apple Developer,
@@ -21,15 +21,15 @@ sertifikat Developer ID, hardened runtime, dan proses notarization.
 ## Cara install yang disarankan
 
 1. Download file `.dmg` dari halaman resmi:
-   <https://github.com/farishhz/absen-kelas/releases/latest>
+   <https://github.com/farhsvvn/hadirin/releases/latest>
 2. Buka file `.dmg`.
-3. Drag **Absen Kelas.app** ke folder **Applications**.
+3. Drag **Hadirin.app** ke folder **Applications**.
 4. Coba buka aplikasi sekali. Jika macOS menolak, klik **Done**.
 5. Buka **System Settings** > **Privacy & Security**.
-6. Di bagian **Security**, cari pesan tentang **Absen Kelas**, lalu klik **Open Anyway**.
+6. Di bagian **Security**, cari pesan tentang **Hadirin**, lalu klik **Open Anyway**.
 7. Konfirmasi dengan **Open**.
 
-Di beberapa versi macOS, cara alternatifnya adalah klik kanan **Absen Kelas.app**, pilih **Open**,
+Di beberapa versi macOS, cara alternatifnya adalah klik kanan **Hadirin.app**, pilih **Open**,
 lalu pilih **Open** lagi pada dialog berikutnya.
 
 ## Opsi terminal untuk pengguna teknis
@@ -37,7 +37,7 @@ lalu pilih **Open** lagi pada dialog berikutnya.
 Jika Anda paham risikonya dan file berasal dari release resmi, atribut quarantine bisa dihapus dengan:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Absen Kelas.app"
+xattr -dr com.apple.quarantine "/Applications/Hadirin.app"
 ```
 
 Setelah itu buka aplikasi dari folder **Applications**.
