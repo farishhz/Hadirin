@@ -98,7 +98,7 @@ Build installer desktop:
 npm run tauri build
 ```
 
-Catatan: build Tauri membutuhkan Rust toolchain dan dependency platform untuk Windows/macOS.
+Catatan: build Tauri membutuhkan Rust toolchain dan dependency platform untuk Windows/macOS
 
 ## Membuat Installer Windows/macOS
 
