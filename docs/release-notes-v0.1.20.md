@@ -1,14 +1,14 @@
-# Hadirin v0.1.19
+# Hadirin v0.1.20
 
-Update logo, repository URL migration, cargo library splitting for Android compatibility, and automated release configuration.
+Update logo, repository URL migration, Android build architecture fix, and CI signing configuration.
 
 ## What's new
 
 - Updated the application logo across all platforms (Windows, macOS, iOS, Android) to use the new branding.
 - Migrated release check URL to the new repository under https://github.com/farishhz/Hadirin.
 - Fixed Android build issue by splitting `main.rs` into `lib.rs` and `main.rs`, and configuring a library target in `Cargo.toml`.
-- Set up automatic GitHub Actions workflow (`.github/workflows/release.yml`) to build and release Windows, macOS, and Android (APK & AAB) packages upon tag pushes.
-- Synced package, Tauri, and Rust metadata to version `0.1.19`.
+- Configured Tauri CI release workflow (`.github/workflows/release.yml`) to support `TAURI_SIGNING_PRIVATE_KEY` for secure updater signature generation.
+- Synced package, Tauri, and Rust metadata to version `0.1.20`.
 
 ## Download
 

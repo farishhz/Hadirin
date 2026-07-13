@@ -1,6 +1,6 @@
 [package]
 name = "hadirin"
-version = "0.1.19"
+version = "0.1.20"
 description = "Aplikasi desktop offline untuk input dan rekap absensi siswa."
 authors = ["Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>"]
 license = "MIT"
