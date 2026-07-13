@@ -21,7 +21,7 @@ sertifikat Developer ID, hardened runtime, dan proses notarization.
 ## Cara install yang disarankan
 
 1. Download file `.dmg` dari halaman resmi:
-   <https://github.com/farhsvvn/hadirin/releases/latest>
+   <https://github.com/farishhz/Hadirin/releases/latest>
 2. Buka file `.dmg`.
 3. Drag **Hadirin.app** ke folder **Applications**.
 4. Coba buka aplikasi sekali. Jika macOS menolak, klik **Done**.

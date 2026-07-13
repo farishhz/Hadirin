@@ -34,7 +34,7 @@ alur absensi sesuai kebutuhan masing-masing.
 ## Download dan Install
 
 Download installer terbaru dari halaman
-[GitHub Releases](https://github.com/farhsvvn/hadirin/releases/tag/v0.1.17).
+[GitHub Releases](https://github.com/farishhz/Hadirin/releases/tag/v0.1.17).
 
 ### Windows
 

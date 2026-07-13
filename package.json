@@ -1,12 +1,12 @@
 {
   "name": "hadirin",
-  "version": "0.1.13",
+  "version": "0.1.18",
   "description": "Aplikasi desktop offline untuk input dan rekap absensi siswa per jam pelajaran.",
   "author": "Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>",
   "homepage": "https://alfarisiazmir.my.id",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/farhsvvn/hadirin.git"
+    "url": "git+https://github.com/farishhz/Hadirin.git"
   },
   "type": "module",
   "license": "MIT",

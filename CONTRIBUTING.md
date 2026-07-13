@@ -1,6 +1,6 @@
 # Contributing
 
-Terima kasih sudah tertarik membantu Absen Kelas.
+Terima kasih sudah tertarik membantu Hadirin.
 
 ## Prinsip Produk
 

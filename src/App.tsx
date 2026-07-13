@@ -106,7 +106,7 @@ const navItems: Array<{ key: ViewKey; label: string; icon: typeof LayoutDashboar
   { key: "settings", label: "Pengaturan", icon: Settings }
 ];
 
-const GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/farhsvvn/hadirin/releases/latest";
+const GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/farishhz/Hadirin/releases/latest";
 const CURRENT_APP_VERSION = packageJson.version;
 
 function downloadTextFile(fileName: string, content: string) {
