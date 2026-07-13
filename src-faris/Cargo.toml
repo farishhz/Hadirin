@@ -1,11 +1,15 @@
 [package]
 name = "hadirin"
-version = "0.1.18"
+version = "0.1.19"
 description = "Aplikasi desktop offline untuk input dan rekap absensi siswa."
 authors = ["Alfarisi Azmir (farhsvvn) <https://alfarisiazmir.my.id>"]
 license = "MIT"
 repository = ""
 edition = "2021"
+
+[lib]
+name = "hadirin"
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
