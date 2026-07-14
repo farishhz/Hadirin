@@ -265,12 +265,13 @@ export function buildMonthlyRows(
   monthKey: string,
   classId: string
 ): MonthlyExportRow[] {
+  const customStatuses = data.customStatuses ?? [];
   return studentsForClass(data.students, classId).map((student) => {
     const records = Object.values(data.attendance).filter(
       (record) => record.classId === classId && record.studentId === student.id && record.date.startsWith(`${monthKey}-`)
     );
 
-    return {
+    const row: MonthlyExportRow = {
       nama_siswa: student.name,
       nis: student.nis ?? "",
       hadir: records.filter((record) => record.status === "present").length,
@@ -278,9 +279,19 @@ export function buildMonthlyRows(
       sakit: records.filter((record) => record.status === "sick").length,
       alpa: records.filter((record) => record.status === "absent").length,
       tugas_piket: records.filter((record) => record.status === "duty").length,
-      lainnya: records.filter((record) => record.status === "other").length,
+      lainnya: records.filter(
+        (record) => record.status === "other" && !customStatuses.some((cs) => cs.label === record.customStatus)
+      ).length,
       total_jam: records.length
     };
+
+    for (const cs of customStatuses) {
+      row[cs.label.toLowerCase()] = records.filter(
+        (record) => record.status === cs.id || (record.status === "other" && record.customStatus === cs.label)
+      ).length;
+    }
+
+    return row;
   });
 }
 

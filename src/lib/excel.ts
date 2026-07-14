@@ -162,6 +162,7 @@ export function createMonthlyWorkbookForClasses(data: AppData, monthKey: string,
 function addMonthlyWorksheet(workbook: ExcelJS.Workbook, data: AppData, monthKey: string, classId: string) {
   const rows = buildMonthlyRows(data, monthKey, classId);
   const sheet = workbook.addWorksheet(sheetName(classNameById(data.classes, classId), workbook.worksheets.length));
+  const customStatuses = data.customStatuses ?? [];
   sheet.columns = [
     { header: "nama_siswa", key: "nama_siswa", width: 28 },
     { header: "nis", key: "nis", width: 14 },
@@ -171,6 +172,11 @@ function addMonthlyWorksheet(workbook: ExcelJS.Workbook, data: AppData, monthKey
     { header: "alpa", key: "alpa", width: 10 },
     { header: "tugas_piket", key: "tugas_piket", width: 14 },
     { header: "lainnya", key: "lainnya", width: 10 },
+    ...customStatuses.map((cs) => ({
+      header: cs.label.toLowerCase(),
+      key: cs.label.toLowerCase(),
+      width: 12
+    })),
     { header: "total_jam", key: "total_jam", width: 12 }
   ];
   sheet.addRows(rows);

@@ -52,6 +52,10 @@ export const seedData: AppData = {
   ],
   attendance: {},
   activeSchedulePatternId: "schedule_regular",
+  customStatuses: [
+    { id: "terlambat", label: "Terlambat", abbreviation: "T", color: "orange" },
+    { id: "dispensasi", label: "Dispensasi", abbreviation: "D", color: "blue" }
+  ],
   updatedAt: now
 };
 

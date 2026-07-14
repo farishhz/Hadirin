@@ -18,3 +18,15 @@ export function formatIndonesianDate(date: string) {
     year: "numeric"
   }).format(new Date(`${date}T00:00:00`));
 }
+
+export function getDaysInMonth(monthKey: string): string[] {
+  const [year, month] = monthKey.split("-").map(Number);
+  const date = new Date(year, month - 1, 1);
+  const dates: string[] = [];
+  while (date.getMonth() === month - 1) {
+    dates.push(date.toISOString().slice(0, 10));
+    date.setDate(date.getDate() + 1);
+  }
+  return dates;
+}
+

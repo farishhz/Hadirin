@@ -33,7 +33,8 @@ export function loadAppData(): AppData {
       institutionName: parsed.institutionName ?? seedData.institutionName,
       studentOrderByClass: parsed.studentOrderByClass ?? {},
       studentSortModeByClass: parsed.studentSortModeByClass ?? {},
-      attendance: parsed.attendance ?? {}
+      attendance: parsed.attendance ?? {},
+      customStatuses: parsed.customStatuses ?? seedData.customStatuses ?? []
     };
   } catch {
     return seedData;
@@ -80,6 +81,7 @@ export function parseBackupPayload(payload: string): AppData {
     institutionName: parsed.data.institutionName ?? seedData.institutionName,
     studentOrderByClass: parsed.data.studentOrderByClass ?? {},
     studentSortModeByClass: parsed.data.studentSortModeByClass ?? {},
-    attendance: parsed.data.attendance ?? {}
+    attendance: parsed.data.attendance ?? {},
+    customStatuses: parsed.data.customStatuses ?? seedData.customStatuses ?? []
   };
 }

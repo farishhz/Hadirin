@@ -1056,3 +1056,78 @@ thead .sticky-col {
     @apply font-sans;
   }
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media print {
+  /* Sembunyikan seluruh sidebar, header utama, tombol kontrol saat cetak */
+  .sidebar,
+  .page-header,
+  .page-actions,
+  .save-status,
+  .toolbar-card,
+  .nav-list,
+  .sidebar-note,
+  button,
+  .main-panel > *:not(#printable-report-area) {
+    display: none !important;
+  }
+  
+  /* Reset panel, background, dan scroll agar sesuai kertas cetak */
+  body, html, #root {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-shell {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .main-panel {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  
+  .fixed {
+    position: relative !important;
+    z-index: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  
+  /* Optimasi modal agar penuh halaman kertas */
+  .max-w-4xl {
+    max-w: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    max-h: none !important;
+    overflow: visible !important;
+  }
+
+  #printable-report-area {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+

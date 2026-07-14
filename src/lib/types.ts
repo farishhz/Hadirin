@@ -4,7 +4,15 @@ export type AttendanceStatus =
   | "sick"
   | "absent"
   | "duty"
-  | "other";
+  | "other"
+  | string;
+
+export interface CustomStatus {
+  id: string;
+  label: string;
+  abbreviation: string;
+  color?: string;
+}
 
 export type StudentSortMode = "az" | "custom" | "male-first" | "female-first";
 
@@ -59,6 +67,7 @@ export interface AppData {
   attendance: Record<AttendanceRecordKey, AttendanceRecord>;
   activeSchedulePatternId: string;
   updatedAt: string;
+  customStatuses?: CustomStatus[];
 }
 
 export interface StudentImportRow {
@@ -92,4 +101,5 @@ export interface MonthlyExportRow {
   tugas_piket: number;
   lainnya: number;
   total_jam: number;
+  [customKey: string]: string | number;
 }

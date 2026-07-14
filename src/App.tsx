@@ -20,7 +20,8 @@ import {
   Settings,
   Trash2,
   Upload,
-  Users
+  Users,
+  Code2
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -42,6 +43,7 @@ import {
   addStudent,
   attendanceRecordKey,
   buildMonthlyRows,
+  classNameById,
   deleteClassGroup,
   deleteStudent,
   markAllPresent,
@@ -52,7 +54,7 @@ import {
   updateStudent,
   upsertAttendanceRecord
 } from "./lib/attendance";
-import { monthKeyFromDate, todayIso, formatIndonesianDate } from "./lib/dates";
+import { monthKeyFromDate, todayIso, formatIndonesianDate, getDaysInMonth } from "./lib/dates";
 import {
   createDailyWorkbookForClasses,
   createMonthlyWorkbookForClasses,
@@ -76,7 +78,7 @@ import {
 } from "./lib/storage";
 import type { AppData, AttendanceStatus, ClassGroup, LessonSlot, SchedulePattern, Student, StudentSortMode } from "./lib/types";
 
-type ViewKey = "dashboard" | "attendance" | "students" | "classes" | "schedules" | "exports" | "settings";
+type ViewKey = "dashboard" | "attendance" | "students" | "classes" | "schedules" | "exports" | "settings" | "developer";
 type ToastKind = "success" | "error" | "info";
 type SaveStatus = "saving" | "saved";
 type UpdateCheckStatus = "idle" | "checking" | "available" | "installing" | "current" | "error";
@@ -103,7 +105,8 @@ const navItems: Array<{ key: ViewKey; label: string; icon: typeof LayoutDashboar
   { key: "classes", label: "Data Kelas", icon: GraduationCap },
   { key: "schedules", label: "Pengaturan Jam", icon: CalendarDays },
   { key: "exports", label: "Rekap & Export", icon: FileSpreadsheet },
-  { key: "settings", label: "Pengaturan", icon: Settings }
+  { key: "settings", label: "Pengaturan", icon: Settings },
+  { key: "developer", label: "Info Pengembang", icon: Code2 }
 ];
 
 const GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/farishhz/Hadirin/releases/latest";
@@ -231,6 +234,9 @@ function App() {
   const [className, setClassName] = useState("");
   const [scheduleName, setScheduleName] = useState("");
   const [importMessage, setImportMessage] = useState("");
+  const [customStatusForm, setCustomStatusForm] = useState({ label: "", abbreviation: "", color: "slate" });
+  const [reportStudent, setReportStudent] = useState<Student | null>(null);
+  const [reportMonthKey, setReportMonthKey] = useState(() => monthKeyFromDate(todayIso()));
   const [exportClassIds, setExportClassIds] = useState<string[]>(() => data.classes.map((item) => item.id));
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [lastSavedAt, setLastSavedAt] = useState(data.updatedAt);
@@ -923,6 +929,9 @@ function App() {
                 updateData(deleteStudent(data, student.id));
                 notify(`${student.name} dihapus dari data siswa.`);
               }}
+              onOpenReport={(student) => {
+                setReportStudent(student);
+              }}
             />
           </section>
         )}
@@ -1158,7 +1167,17 @@ function App() {
             </div>
             <p className="muted-text">Preview di bawah menampilkan rekap bulanan kelas aktif: {selectedClass.name}.</p>
             <DataTable
-              headers={["Nama", "Hadir", "Izin", "Sakit", "Alpa", "Tugas/Piket", "Lainnya", "Total Jam"]}
+              headers={[
+                "Nama",
+                "Hadir",
+                "Izin",
+                "Sakit",
+                "Alpa",
+                "Tugas/Piket",
+                "Lainnya",
+                ...(data.customStatuses ?? []).map((cs) => cs.label),
+                "Total Jam"
+              ]}
               rows={monthlyRows.map((row) => [
                 row.nama_siswa,
                 row.hadir.toString(),
@@ -1167,6 +1186,7 @@ function App() {
                 row.alpa.toString(),
                 row.tugas_piket.toString(),
                 row.lainnya.toString(),
+                ...(data.customStatuses ?? []).map((cs) => (row[cs.label.toLowerCase()] ?? 0).toString()),
                 row.total_jam.toString()
               ])}
             />
@@ -1194,6 +1214,148 @@ function App() {
                 />
               </label>
             </div>
+
+            {/* Custom Status Card */}
+            <div className="workspace-card">
+              <h2>Kustomisasi Status Absensi</h2>
+              <p className="muted-text">
+                Tambahkan status absensi khusus untuk sekolah Anda (misal: Terlambat, Dispensasi, Skorsing). Status ini akan muncul di pilihan absen siswa dan direkap terpisah.
+              </p>
+              
+              {/* Form to add custom status */}
+              <div className="form-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr auto", alignItems: "end", gap: "10px", marginTop: "16px" }}>
+                <label>
+                  Nama Status
+                  <Input
+                    placeholder="Contoh: Dispensasi"
+                    value={customStatusForm.label}
+                    onChange={(e) => setCustomStatusForm({ ...customStatusForm, label: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Singkatan (1-2 huruf)
+                  <Input
+                    placeholder="Contoh: D"
+                    maxLength={2}
+                    value={customStatusForm.abbreviation}
+                    onChange={(e) => setCustomStatusForm({ ...customStatusForm, abbreviation: e.target.value.toUpperCase() })}
+                  />
+                </label>
+                <label>
+                  Warna Tampilan
+                  <Select
+                    value={customStatusForm.color}
+                    onValueChange={(color) => setCustomStatusForm({ ...customStatusForm, color })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih warna" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="emerald">Hijau (Emerald)</SelectItem>
+                      <SelectItem value="blue">Biru (Blue)</SelectItem>
+                      <SelectItem value="yellow">Kuning (Yellow)</SelectItem>
+                      <SelectItem value="red">Merah (Red)</SelectItem>
+                      <SelectItem value="purple">Ungu (Purple)</SelectItem>
+                      <SelectItem value="orange">Jingga (Orange)</SelectItem>
+                      <SelectItem value="pink">Merah Muda (Pink)</SelectItem>
+                      <SelectItem value="slate">Abu-abu (Slate)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const label = customStatusForm.label.trim();
+                    const abbreviation = customStatusForm.abbreviation.trim();
+                    if (!label || !abbreviation) {
+                      notify("Nama status dan singkatan wajib diisi.", "error");
+                      return;
+                    }
+                    
+                    const existingList = data.customStatuses ?? [];
+                    if (existingList.some(item => item.label.toLowerCase() === label.toLowerCase() || item.id === label.toLowerCase().replace(/\s+/g, "_"))) {
+                      notify("Status dengan nama tersebut sudah ada.", "error");
+                      return;
+                    }
+
+                    const newStatus = {
+                      id: label.toLowerCase().replace(/\s+/g, "_"),
+                      label,
+                      abbreviation,
+                      color: customStatusForm.color
+                    };
+
+                    updateData({
+                      ...data,
+                      customStatuses: [...existingList, newStatus],
+                      updatedAt: new Date().toISOString()
+                    });
+                    setCustomStatusForm({ label: "", abbreviation: "", color: "slate" });
+                    notify(`Status kustom "${label}" berhasil ditambahkan.`);
+                  }}
+                >
+                  <Plus data-icon="inline-start" />
+                  Tambah
+                </Button>
+              </div>
+
+              {/* List of custom statuses */}
+              <div style={{ marginTop: "20px" }}>
+                <h3 className="text-sm font-semibold mb-2">Daftar Status Kustom Aktif</h3>
+                {(data.customStatuses ?? []).length === 0 ? (
+                  <p className="muted-text text-xs">Belum ada status kustom. Gunakan formulir di atas untuk menambahkan.</p>
+                ) : (
+                  <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+                    {(data.customStatuses ?? []).map((cs) => {
+                      const colors = {
+                        emerald: "bg-emerald-100 border-emerald-300 text-emerald-800",
+                        blue: "bg-blue-100 border-blue-300 text-blue-800",
+                        yellow: "bg-yellow-100 border-yellow-300 text-yellow-800",
+                        red: "bg-red-100 border-red-300 text-red-800",
+                        purple: "bg-purple-100 border-purple-300 text-purple-800",
+                        orange: "bg-orange-100 border-orange-300 text-orange-800",
+                        pink: "bg-pink-100 border-pink-300 text-pink-800",
+                        slate: "bg-slate-100 border-slate-300 text-slate-800"
+                      }[cs.color || "slate"] || "bg-slate-100 border-slate-300 text-slate-800";
+
+                      return (
+                        <div key={cs.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", border: "1px solid var(--border)", borderRadius: "8px", background: "var(--surface)" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold ${colors}`}>
+                              {cs.abbreviation}
+                            </span>
+                            <div>
+                              <strong className="text-sm text-slate-800 dark:text-slate-200">{cs.label}</strong>
+                              <span className="text-xs text-slate-400 block">ID: {cs.id}</span>
+                            </div>
+                          </div>
+                          <Button
+                            className="text-destructive"
+                            variant="outline"
+                            size="icon-sm"
+                            type="button"
+                            onClick={() => {
+                              const confirmed = window.confirm(`Hapus status kustom "${cs.label}"? Data kehadiran yang sudah terekam dengan status ini akan tetap ada tetapi statusnya akan dirujuk secara umum.`);
+                              if (!confirmed) return;
+                              
+                              updateData({
+                                ...data,
+                                customStatuses: (data.customStatuses ?? []).filter(item => item.id !== cs.id),
+                                updatedAt: new Date().toISOString()
+                              });
+                              notify(`Status "${cs.label}" berhasil dihapus.`);
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="workspace-card update-card">
               <div>
                 <Badge variant="outline">Versi {CURRENT_APP_VERSION}</Badge>
@@ -1337,7 +1499,351 @@ function App() {
             </div>
           </section>
         )}
+
+        {activeView === "developer" && (
+          <section className="view-stack animate-fade-in">
+            <PageHeader
+              title="Info Pengembang"
+              description="Informasi tentang pengembang dan organisasi di balik aplikasi Hadirin."
+              {...saveHeaderProps}
+            />
+            
+            <div className="split-grid">
+              {/* Developer Profile Card */}
+              <div className="workspace-card flex flex-col items-center text-center gap-4 py-8 px-5 border-t-4 border-t-[#047857] hover:shadow-md transition-all duration-200">
+                <div 
+                  className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-md border-4 border-white dark:border-zinc-800"
+                  style={{ background: "linear-gradient(135deg, #047857 0%, #065f46 100%)" }}
+                >
+                  FA
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Alfarisi Azmir</h2>
+                  <p className="text-sm font-semibold text-[#047857] dark:text-[#34d399] mt-1">@farishhz</p>
+                </div>
+                <p className="text-slate-650 dark:text-slate-350 text-sm max-w-sm">
+                  Pengembang utama aplikasi Hadirin. Fokus mengembangkan solusi digital offline-first, cepat, dan mudah digunakan untuk instansi pendidikan.
+                </p>
+                <div className="mt-auto w-full pt-4">
+                  <Button 
+                    className="w-full flex items-center justify-center gap-2"
+                    type="button"
+                    onClick={() => void openExternalDownload("https://github.com/farishhz")}
+                  >
+                    <ExternalLink size={16} />
+                    Kunjungi GitHub Profile
+                  </Button>
+                </div>
+              </div>
+
+              {/* Organization Card */}
+              <div className="workspace-card flex flex-col items-center text-center gap-4 py-8 px-5 border-t-4 border-t-[#2563eb] hover:shadow-md transition-all duration-200">
+                <div 
+                  className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-md border-4 border-white dark:border-zinc-800"
+                  style={{ background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)" }}
+                >
+                  TD
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Tenka Developer</h2>
+                  <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-1">@tenka-developer</p>
+                </div>
+                <p className="text-slate-650 dark:text-slate-350 text-sm max-w-sm">
+                  Wadah kolaborasi pengembang independen untuk menciptakan aplikasi open-source berkualitas tinggi yang andal, aman, dan bermanfaat bagi masyarakat.
+                </p>
+                <div className="mt-auto w-full pt-4">
+                  <Button 
+                    className="w-full flex items-center justify-center gap-2"
+                    variant="outline"
+                    type="button"
+                    onClick={() => void openExternalDownload("https://github.com/tenka-developer")}
+                  >
+                    <ExternalLink size={16} />
+                    Kunjungi GitHub Organisasi
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Tech Stack Details */}
+            <div className="workspace-card p-6">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Code2 className="text-emerald-600" size={20} />
+                Teknologi & Spesifikasi Aplikasi
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--surface)] hover:shadow-sm transition-all duration-200">
+                  <span className="block text-xs font-semibold text-[var(--app-muted)] tracking-wider">FRAMEWORK DESKTOP</span>
+                  <strong className="block text-sm text-[var(--text)] mt-1">Tauri v2 (Rust Engine)</strong>
+                </div>
+                <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--surface)] hover:shadow-sm transition-all duration-200">
+                  <span className="block text-xs font-semibold text-[var(--app-muted)] tracking-wider">FRONTEND LIBRARY</span>
+                  <strong className="block text-sm text-[var(--text)] mt-1">React 19 & TypeScript</strong>
+                </div>
+                <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--surface)] hover:shadow-sm transition-all duration-200">
+                  <span className="block text-xs font-semibold text-[var(--app-muted)] tracking-wider">STYLING ENGINE</span>
+                  <strong className="block text-sm text-[var(--text)] mt-1">Tailwind CSS v4</strong>
+                </div>
+                <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--surface)] hover:shadow-sm transition-all duration-200">
+                  <span className="block text-xs font-semibold text-[var(--app-muted)] tracking-wider">EXPORT & DATA</span>
+                  <strong className="block text-sm text-[var(--text)] mt-1">ExcelJS & LocalStorage</strong>
+                </div>
+              </div>
+              <div className="mt-5 pt-4 border-t border-[var(--border)] flex flex-col sm:flex-row justify-between items-center text-xs text-[var(--app-muted)] gap-2">
+                <span>Versi Aplikasi: v{CURRENT_APP_VERSION}</span>
+                <span>Lisensi: MIT License</span>
+                <span>Tipe Rilis: Stabil & Offline</span>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
+
+      {/* Student Report Card Modal Overlay */}
+      {reportStudent && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+          onClick={() => setReportStudent(null)}
+        >
+          <div 
+            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-zinc-800 mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Laporan Kehadiran Siswa</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Detail riwayat kehadiran bulanan dan akumulasi statistik.
+                </p>
+              </div>
+              <Button 
+                variant="ghost" 
+                onClick={() => setReportStudent(null)}
+                aria-label="Tutup modal"
+                style={{ minHeight: '32px', padding: '4px 10px', fontSize: '12px' }}
+              >
+                Tutup
+              </Button>
+            </div>
+
+            {/* Print Area Section */}
+            <div id="printable-report-area" className="space-y-6">
+              {/* Profile Card */}
+              <div className="bg-slate-50 dark:bg-zinc-950 p-4 rounded-lg border border-slate-100 dark:border-zinc-850 flex flex-col sm:flex-row justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400">{reportStudent.name}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    NIS: {reportStudent.nis || "-"} | Jenis Kelamin: {reportStudent.gender === "P" ? "Perempuan" : "Laki-laki"}
+                  </p>
+                </div>
+                <div className="text-sm sm:text-right">
+                  <span className="block text-slate-400">Kelas</span>
+                  <strong className="text-slate-700 dark:text-slate-200 text-lg">{classNameById(data.classes, reportStudent.classId)}</strong>
+                </div>
+              </div>
+
+              {/* Month Selector and Stats */}
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* Left Side: Month Selector & Statistics */}
+                <div className="w-full md:w-1/3 space-y-4">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    Pilih Bulan Rekap
+                    <Select value={reportMonthKey} onValueChange={setReportMonthKey}>
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue placeholder="Bulan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from(new Set(Object.values(data.attendance).map(r => r.date.slice(0, 7)))).sort().reverse().map(mKey => (
+                          <SelectItem key={mKey} value={mKey}>{mKey}</SelectItem>
+                        ))}
+                        {/* Fallback to current month if no data */}
+                        {!Array.from(new Set(Object.values(data.attendance).map(r => r.date.slice(0, 7)))).includes(reportMonthKey) && (
+                          <SelectItem value={reportMonthKey}>{reportMonthKey}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </label>
+
+                  {/* Calculations */}
+                  {(() => {
+                    const monthRecs = Object.values(data.attendance).filter(
+                      r => r.studentId === reportStudent.id && r.date.startsWith(`${reportMonthKey}-`)
+                    );
+                    const totalSlots = monthRecs.length;
+                    const presentSlots = monthRecs.filter(r => r.status === "present").length;
+                    const permission = monthRecs.filter(r => r.status === "permission").length;
+                    const sick = monthRecs.filter(r => r.status === "sick").length;
+                    const absent = monthRecs.filter(r => r.status === "absent").length;
+                    const duty = monthRecs.filter(r => r.status === "duty").length;
+                    const customStatuses = data.customStatuses ?? [];
+                    const others = monthRecs.filter(
+                      r => r.status === "other" && !customStatuses.some(cs => cs.label === r.customStatus)
+                    ).length;
+
+                    const presenceRate = totalSlots > 0 ? Math.round((presentSlots / totalSlots) * 100) : 100;
+
+                    return (
+                      <div className="border border-slate-200 dark:border-zinc-800 rounded-lg p-4 space-y-4 bg-white dark:bg-zinc-900 shadow-xs">
+                        <div className="text-center pb-3 border-b border-slate-100 dark:border-zinc-800">
+                          <span className="text-xs text-slate-400 block font-semibold uppercase tracking-wider">Persentase Kehadiran</span>
+                          <strong className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 block mt-1">{presenceRate}%</strong>
+                          <span className="text-xs text-slate-400 mt-1 block">Dari {totalSlots} total jam pelajaran</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="p-2 rounded bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400">
+                            Hadir: <strong>{presentSlots} jam</strong>
+                          </div>
+                          <div className="p-2 rounded bg-blue-50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400">
+                            Izin: <strong>{permission} jam</strong>
+                          </div>
+                          <div className="p-2 rounded bg-yellow-50 dark:bg-yellow-950/20 text-yellow-800 dark:text-yellow-400">
+                            Sakit: <strong>{sick} jam</strong>
+                          </div>
+                          <div className="p-2 rounded bg-red-50 dark:bg-red-950/20 text-red-800 dark:text-red-400">
+                            Alpa: <strong>{absent} jam</strong>
+                          </div>
+                          <div className="p-2 rounded bg-purple-50 dark:bg-purple-950/20 text-purple-800 dark:text-purple-400">
+                            Piket: <strong>{duty} jam</strong>
+                          </div>
+                          <div className="p-2 rounded bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-slate-350">
+                            Lainnya: <strong>{others} jam</strong>
+                          </div>
+                        </div>
+
+                        {/* Custom statuses details */}
+                        {customStatuses.length > 0 && (
+                          <div className="border-t border-slate-100 dark:border-zinc-800 pt-3 space-y-2">
+                            <span className="text-xs text-slate-400 block font-semibold">Status Kustom:</span>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              {customStatuses.map(cs => {
+                                const count = monthRecs.filter(
+                                  r => r.status === cs.id || (r.status === "other" && r.customStatus === cs.label)
+                                ).length;
+                                return (
+                                  <div key={cs.id} className="p-2 rounded border border-slate-100 dark:border-zinc-850 bg-white dark:bg-zinc-950">
+                                    {cs.label}: <strong>{count} jam</strong>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Right Side: Log Kalender */}
+                <div className="w-full md:w-2/3">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Jurnal Log Kehadiran</span>
+                  {(() => {
+                    const customStatuses = data.customStatuses ?? [];
+                    const monthRecs = Object.values(data.attendance).filter(
+                      r => r.studentId === reportStudent.id && r.date.startsWith(`${reportMonthKey}-`)
+                    );
+                    const activeDates = Array.from(new Set(monthRecs.map(r => r.date))).sort();
+
+                    if (activeDates.length === 0) {
+                      return (
+                        <div className="border border-dashed border-slate-200 dark:border-zinc-800 rounded-lg p-8 text-center text-slate-400 text-sm">
+                          Tidak ada rekaman absensi pada bulan ini.
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900">
+                        <table className="w-full border-collapse text-left text-sm">
+                          <thead>
+                            <tr className="bg-slate-50 dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800">
+                              <th className="p-3 font-semibold text-slate-500">Hari & Tanggal</th>
+                              <th className="p-3 font-semibold text-slate-500">Absensi Detail</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {activeDates.map(dateStr => {
+                              const recsForDay = monthRecs.filter(r => r.date === dateStr);
+                              return (
+                                <tr key={dateStr} className="border-b border-slate-100 dark:border-zinc-850 hover:bg-slate-50/50 dark:hover:bg-zinc-950/20">
+                                  <td className="p-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                                    {formatIndonesianDate(dateStr).split(",")[1]?.trim() || dateStr}
+                                  </td>
+                                  <td className="p-3">
+                                    <div className="flex flex-wrap gap-1">
+                                      {recsForDay.map(r => {
+                                        let slotName = r.slotId;
+                                        for (const pattern of data.schedulePatterns) {
+                                          const foundSlot = pattern.slots.find(s => s.id === r.slotId);
+                                          if (foundSlot) {
+                                            slotName = foundSlot.name;
+                                            break;
+                                          }
+                                        }
+
+                                        let label = statusLabel(r.status, customStatuses, r.customStatus);
+                                        let abbreviation = label.slice(0, 1).toUpperCase();
+                                        
+                                        let colors = "bg-slate-100 text-slate-800 border-slate-200";
+                                        if (r.status === "present") colors = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                                        else if (r.status === "permission") colors = "bg-blue-100 text-blue-800 border-blue-200";
+                                        else if (r.status === "sick") colors = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                                        else if (r.status === "absent") colors = "bg-red-100 text-red-800 border-red-200";
+                                        else if (r.status === "duty") colors = "bg-purple-100 text-purple-800 border-purple-200";
+                                        else {
+                                          const cs = customStatuses.find(c => c.id === r.status);
+                                          if (cs) {
+                                            abbreviation = cs.abbreviation;
+                                            colors = {
+                                              emerald: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                                              blue: "bg-blue-100 text-blue-800 border-blue-200",
+                                              yellow: "bg-yellow-100 text-yellow-800 border-yellow-200",
+                                              red: "bg-red-100 text-red-800 border-red-200",
+                                              purple: "bg-purple-100 text-purple-800 border-purple-200",
+                                              orange: "bg-orange-100 text-orange-850 border-orange-200",
+                                              pink: "bg-pink-100 text-pink-850 border-pink-200",
+                                              slate: "bg-slate-100 text-slate-850 border-slate-250"
+                                            }[cs.color || "slate"] || colors;
+                                          }
+                                        }
+
+                                        return (
+                                          <span 
+                                            key={r.id} 
+                                            className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${colors}`}
+                                            title={`${slotName}: ${label}${r.note ? ' - ' + r.note : ''}`}
+                                          >
+                                            <strong className="font-extrabold">{abbreviation}</strong>
+                                            <span className="opacity-75 text-[10px]">{slotName}</span>
+                                          </span>
+                                        );
+                                      })}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-zinc-800 mt-6">
+              <Button variant="outline" type="button" onClick={() => window.print()}>
+                Cetak Laporan
+              </Button>
+              <Button type="button" onClick={() => setReportStudent(null)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1509,6 +2015,30 @@ function AttendanceGrid({
     shouldNotify?: boolean
   ) => void;
 }) {
+  const customStatuses = data.customStatuses ?? [];
+  const getStatusColorStyles = (statusVal: string) => {
+    const cs = customStatuses.find((c) => c.id === statusVal);
+    if (!cs) return {};
+
+    const colorMap: Record<string, { bg: string; border: string; text: string }> = {
+      emerald: { bg: "#dcfce7", border: "#86efac", text: "#166534" },
+      blue: { bg: "#dbeafe", border: "#93c5fd", text: "#1d4ed8" },
+      yellow: { bg: "#fef9c3", border: "#fde047", text: "#854d0e" },
+      red: { bg: "#fee2e2", border: "#fca5a5", text: "#b91c1c" },
+      purple: { bg: "#f3e8ff", border: "#d8b4fe", text: "#6b21a8" },
+      orange: { bg: "#ffedd5", border: "#fed7aa", text: "#c2410c" },
+      pink: { bg: "#fce7f3", border: "#fbcfe8", text: "#9d174d" },
+      slate: { bg: "#f1f5f9", border: "#cbd5e1", text: "#334155" }
+    };
+
+    const colors = colorMap[cs.color || "slate"] || colorMap.slate;
+    return {
+      backgroundColor: colors.bg,
+      borderColor: colors.border,
+      color: colors.text
+    };
+  };
+
   return (
     <div className="attendance-table-wrap">
       <Table className="attendance-table">
@@ -1549,21 +2079,29 @@ function AttendanceGrid({
                         onChange(
                           student.id,
                           slot.id,
-                          value as AttendanceStatus,
-                          record?.customStatus,
+                          value,
+                          customStatuses.find((cs) => cs.id === value)?.label || record?.customStatus,
                           record?.note,
                           true
                         )
                       }
                     >
-                      <SelectTrigger className={`status-select status-${status}`}>
+                      <SelectTrigger 
+                        className={`status-select status-${status}`}
+                        style={getStatusColorStyles(status)}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {ATTENDANCE_STATUS_OPTIONS.map((option) => (
                             <SelectItem key={option} value={option}>
-                              {statusLabel(option)}
+                              {statusLabel(option, customStatuses)}
+                            </SelectItem>
+                          ))}
+                          {customStatuses.map((cs) => (
+                            <SelectItem key={cs.id} value={cs.id}>
+                              {cs.label}
                             </SelectItem>
                           ))}
                         </SelectGroup>
@@ -1602,13 +2140,15 @@ function StudentDataTable({
   sortMode,
   onMove,
   onSave,
-  onDelete
+  onDelete,
+  onOpenReport
 }: {
   students: Student[];
   sortMode: StudentSortMode;
   onMove: (studentId: string, direction: "up" | "down") => void;
   onSave: (student: Student, nextStudent: Pick<Student, "name" | "nis" | "gender" | "note">) => void;
   onDelete: (student: Student) => void;
+  onOpenReport: (student: Student) => void;
 }) {
   function saveFromRow(student: Student, row: HTMLTableRowElement) {
     const fields = Object.fromEntries(
@@ -1729,16 +2269,27 @@ function StudentDataTable({
                 </div>
               </TableCell>
               <TableCell>
-                <Button
-                  className="text-destructive"
-                  size="icon-sm"
-                  variant="outline"
-                  type="button"
-                  title="Hapus siswa"
-                  onClick={() => onDelete(student)}
-                >
-                  <Trash2 />
-                </Button>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    type="button"
+                    title="Laporan Kehadiran"
+                    onClick={() => onOpenReport(student)}
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    className="text-destructive"
+                    size="icon-sm"
+                    variant="outline"
+                    type="button"
+                    title="Hapus siswa"
+                    onClick={() => onDelete(student)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

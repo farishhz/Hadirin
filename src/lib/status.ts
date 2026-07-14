@@ -1,4 +1,4 @@
-import type { AttendanceStatus } from "./types";
+import type { AttendanceStatus, CustomStatus } from "./types";
 
 export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
   present: "Hadir",
@@ -18,10 +18,29 @@ export const ATTENDANCE_STATUS_OPTIONS: AttendanceStatus[] = [
   "other"
 ];
 
-export function statusLabel(status: AttendanceStatus, customStatus?: string) {
-  if (status === "other" && customStatus?.trim()) {
-    return customStatus.trim();
+export function statusLabel(
+  status: string,
+  customStatusesOrCustomStatusLabel?: CustomStatus[] | string,
+  maybeCustomStatusLabel?: string
+) {
+  let customStatuses: CustomStatus[] = [];
+  let customStatusLabel: string | undefined = undefined;
+
+  if (Array.isArray(customStatusesOrCustomStatusLabel)) {
+    customStatuses = customStatusesOrCustomStatusLabel;
+    customStatusLabel = maybeCustomStatusLabel;
+  } else if (typeof customStatusesOrCustomStatusLabel === "string") {
+    customStatusLabel = customStatusesOrCustomStatusLabel;
   }
 
-  return ATTENDANCE_STATUS_LABELS[status];
+  const matchedCustom = customStatuses.find((item) => item.id === status);
+  if (matchedCustom) {
+    return matchedCustom.label;
+  }
+
+  if (status === "other" && customStatusLabel?.trim()) {
+    return customStatusLabel.trim();
+  }
+
+  return ATTENDANCE_STATUS_LABELS[status as AttendanceStatus] || status;
 }
